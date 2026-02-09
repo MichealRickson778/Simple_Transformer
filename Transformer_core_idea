@@ -1,0 +1,276 @@
+# Simple Language Transformer (Translation) – Developer Documentation
+
+## 1. Purpose
+
+This document guides you to build a **simple, industry-correct Transformer model for language translation** from scratch. The goal is educational + production-aligned, not research-heavy.
+
+You will build:
+
+* An **Encoder–Decoder Transformer**
+* Train it on a **parallel corpus** (e.g., English → Hindi)
+* Evaluate using **BLEU score**
+* Serve it via a **REST API**
+
+This mirrors how real-world NLP systems are designed—just at a smaller scale.
+
+---
+
+## 2. Scope & Non-Goals
+
+### In Scope
+
+* Transformer architecture
+* Tokenization
+* Training loop
+* Inference decoding
+* Evaluation
+* API serving
+
+### Out of Scope
+
+* Billion-parameter models
+* Chat-style reasoning
+* RLHF
+* Massive distributed training
+
+---
+
+## 3. High-Level Architecture
+
+```
+Raw Parallel Data
+   ↓
+Tokenizer (SentencePiece / BPE)
+   ↓
+Transformer (Encoder–Decoder)
+   ↓
+Training (Teacher Forcing)
+   ↓
+Evaluation (BLEU)
+   ↓
+Inference API (FastAPI)
+```
+
+---
+
+## 4. Model Architecture
+
+### 4.1 Transformer Type
+
+* Encoder–Decoder Transformer
+* Based on "Attention Is All You Need"
+
+### 4.2 Recommended Configuration
+
+| Component             | Value   |
+| --------------------- | ------- |
+| Encoder Layers        | 4       |
+| Decoder Layers        | 4       |
+| Hidden Size (d_model) | 512     |
+| Attention Heads       | 8       |
+| FFN Size              | 2048    |
+| Dropout               | 0.1     |
+| Vocabulary Size       | 16k–32k |
+
+Expected parameters: **20–30M**
+
+---
+
+## 5. Data Pipeline
+
+### 5.1 Dataset Options
+
+* OPUS
+* WMT
+* TED Talks
+
+Recommended start:
+
+* **English → Hindi**
+
+### 5.2 Data Format
+
+```
+source_sentence \t target_sentence
+```
+
+Example:
+
+```
+How are you?\tआप कैसे हैं?
+```
+
+---
+
+## 6. Tokenization
+
+### 6.1 Why Tokenization Matters
+
+* Controls vocabulary size
+* Reduces OOV issues
+* Improves training stability
+
+### 6.2 Recommended Tokenizer
+
+* SentencePiece (Unigram or BPE)
+
+### 6.3 Special Tokens
+
+* <pad>
+* <bos>
+* <eos>
+* <unk>
+
+---
+
+## 7. Training Process
+
+### 7.1 Training Strategy
+
+* Supervised learning
+* Teacher forcing
+* Cross-entropy loss
+
+### 7.2 Optimizer
+
+* Adam
+* Learning rate: 1e-4
+* Warmup steps: 4000
+
+### 7.3 Training Loop (Conceptual)
+
+1. Encode source sentence
+2. Shift target sentence right
+3. Compute logits
+4. Calculate loss
+5. Backpropagation
+
+---
+
+## 8. Inference & Decoding
+
+### 8.1 Decoding Strategy
+
+* Greedy decoding (start)
+* Beam search (recommended)
+
+### 8.2 Inference Flow
+
+```
+Input Sentence
+ → Tokenize
+ → Encoder
+ → Decoder (step-by-step)
+ → Detokenize
+ → Output Translation
+```
+
+---
+
+## 9. Evaluation
+
+### 9.1 Metric
+
+* BLEU Score
+
+### 9.2 Evaluation Data
+
+* Held-out validation set
+
+### 9.3 What to Expect
+
+| BLEU Score | Quality    |
+| ---------- | ---------- |
+| <10        | Poor       |
+| 10–20      | Acceptable |
+| 20–30      | Good       |
+| 30+        | Very Good  |
+
+---
+
+## 10. API Design
+
+### 10.1 REST Endpoint
+
+```
+POST /translate
+```
+
+### 10.2 Request
+
+```json
+{
+  "text": "How are you?"
+}
+```
+
+### 10.3 Response
+
+```json
+{
+  "translation": "आप कैसे हैं?"
+}
+```
+
+---
+
+## 11. Folder Structure
+
+```
+translator/
+│── data/
+│── tokenizer/
+│── model/
+│── training/
+│── inference/
+│── api/
+│── configs/
+│── tests/
+│── requirements.txt
+```
+
+---
+
+## 12. Hardware & Cost
+
+### Minimum Setup
+
+* 1 GPU (RTX 3060 / T4 / A10)
+* 16GB RAM
+
+### Training Cost
+
+* Local GPU: Free
+* Cloud: $10–$30
+
+---
+
+## 13. Production Considerations
+
+* Batch inference
+* Model versioning
+* Logging
+* Rate limiting
+* Monitoring
+
+---
+
+## 14. Future Enhancements
+
+* Domain fine-tuning
+* Multi-language support
+* Quantization
+* ONNX export
+* GPU optimization
+
+---
+
+## 15. Outcome
+
+After completing this project, you will:
+
+* Understand transformers deeply
+* Have a deployable NLP system
+* Own an industry-grade portfolio project
+
+This is the **right foundation** before scaling to larger LLM systems.
